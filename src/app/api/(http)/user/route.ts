@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { makeRegisterUseCase } from "../../use-cases/factories/make-resgister-use-case";
+import { UserAlreadyExistsError } from "../../use-cases/errors/use-already-exists-error";
 
 export async function GET() {
 
@@ -33,3 +35,27 @@ export async function GET() {
     }
 
 }
+
+export async function POST(request: NextRequest) {
+    const { name, email, password } = await request.json()
+  
+    try {
+      const registerUserCase = makeRegisterUseCase()
+  
+      await registerUserCase.execute({
+        name,
+        email,
+        password,
+      })
+  
+      return NextResponse.json(
+        { message: 'User created successfully' },
+        { status: 201 },
+      )
+    } catch (err) {
+      if (err instanceof UserAlreadyExistsError) {
+        return NextResponse.json({ message: err.message }, { status: 409 })
+      }
+      throw err
+    }
+  }
