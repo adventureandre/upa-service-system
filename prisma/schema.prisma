@@ -17,3 +17,12 @@ model User {
 
   @@map("user")
 }
+
+model Cliente {
+  id String @id @default(uuid())
+  created_at DateTime @default(now())
+  nome String
+  prioridade String
+
+  @@map("cliente")
+}

@@ -22,6 +22,7 @@ export const userStore = create<UserStore>((set) => ({
       const response = await api('/user')
       const allUsers: User[] = await response.json()
 
+      
       set({
         users: allUsers,
         isLoading: false,
