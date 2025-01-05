@@ -6,8 +6,8 @@ import Image from "next/image"
 import { useEffect } from "react"
 import { Circle } from "lucide-react"
 
-export default function Tela() {
-    const { isLoading, load, clientes, updateStatus } = clienteStore()
+export default function Consultorio() {
+    const { load, clientes, updateStatus } = clienteStore()
 
     useEffect(() => {
         load()
@@ -47,7 +47,7 @@ export default function Tela() {
                         {clientes?.map((cliente) => (
                             <TableRow key={cliente.id}>
                                 <TableCell className="font-medium">
-                                    <Circle size={32} color={cliente.status === "chamado" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
+                                    <Circle size={32} color={cliente.prioridade === "urgente" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
                                 </TableCell>
                                 <TableCell className="flex-1">{cliente.nome}</TableCell>
                                 <TableCell>

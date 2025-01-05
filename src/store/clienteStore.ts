@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Cliente, Prisma } from "@prisma/client";
+import { Cliente } from "@prisma/client";
 import { create } from "zustand";
 
 type ClienteStore = {
