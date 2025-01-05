@@ -7,14 +7,17 @@ import { useEffect } from "react"
 import { Circle } from "lucide-react"
 
 export default function Tela() {
-    const { isLoading, load, clientes } = clienteStore()
+    const { isLoading, load, clientes, updateStatus } = clienteStore()
 
     useEffect(() => {
         load()
-    }, [load])  // Garantir que o 'load' seja chamado uma vez na montagem
-
+    }, [load])
 
     console.log(clientes)
+
+    const handleChamarPaciente = (id: string) => {
+        updateStatus(id, "chamado") // Atualiza o status do paciente para "chamado"
+    }
 
     return (
         <section >
@@ -29,41 +32,42 @@ export default function Tela() {
                 <p className="w-full font-bold"><span className="bg text-blue-500 mr-1 ">Proficional: </span> Milena Camila Nogueira Souza</p>
             </article>
 
-
             <div className="mx-6">
-                <Table className="">
+                <Table>
                     <TableCaption>Lista de chamada de pacientes.</TableCaption>
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-[100px]">CR</TableHead>
                             <TableHead>Pacientes Chamados</TableHead>
                             <TableHead></TableHead>
-                            <TableHead className="text-right">Hora Chamada</TableHead>
+                            <TableHead className="text-right">Ação</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow>
-                            <TableCell className="font-medium">
-                                <Circle size={32} color="#f50000" strokeWidth={3} absoluteStrokeWidth />
-                            </TableCell>
-                            <TableCell className="flex-1">Maria Rita Silva</TableCell>
-                            <TableCell> <div>UPA - ATENDIMENTO MÉDICO</div><div>Milena Camila Nogueira Souza</div><div>CONSULTÓRIO MÉDICO 01</div> </TableCell>
-                            <TableCell className="text-right">15:02 BRT</TableCell>
-                        </TableRow>
-
-                        <TableRow>
-                            <TableCell className="font-medium">
-                                <Circle size={32} color="#17ac2b" strokeWidth={3} absoluteStrokeWidth />
-                            </TableCell>
-                            <TableCell className="flex-1" >JOAO MARCOS GODOI DE LIMA</TableCell>
-                            <TableCell className="w-60"> <div>UPA - ATENDIMENTO MÉDICO</div><div>Milena Camila Nogueira Souza</div><div>CONSULTÓRIO MÉDICO 01</div> </TableCell>
-                            <TableCell className="text-right">14:51 BRT</TableCell>
-                        </TableRow>
+                        {clientes?.map((cliente) => (
+                            <TableRow key={cliente.id}>
+                                <TableCell className="font-medium">
+                                    <Circle size={32} color={cliente.status === "chamado" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
+                                </TableCell>
+                                <TableCell className="flex-1">{cliente.nome}</TableCell>
+                                <TableCell>
+                                    <div>UPA - ATENDIMENTO MÉDICO</div>
+                                    <div>Milena Camila Nogueira Souza</div>
+                                    <div>CONSULTÓRIO MÉDICO 01</div>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <button
+                                        onClick={() => handleChamarPaciente(cliente.id)}
+                                        className="bg-blue-500 text-white py-1 px-4 rounded"
+                                    >
+                                        Chamar
+                                    </button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </div>
-
-
         </section>
     )
 }

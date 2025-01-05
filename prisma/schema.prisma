@@ -23,6 +23,7 @@ model Cliente {
   created_at DateTime @default(now())
   nome String
   prioridade String
+  status  String @default("aguardando")
 
   @@map("cliente")
 }

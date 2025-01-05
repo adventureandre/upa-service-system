@@ -3,47 +3,46 @@ import { Cliente, Prisma } from "@prisma/client";
 import { create } from "zustand";
 
 type ClienteStore = {
-    clientes: Cliente[] | null,
+    clientes: Cliente[],
     isLoading: boolean,
-    create: (data: Prisma.ClienteCreateInput) => void
-    load: () => Promise<void>
+    load: () => Promise<void>,
+    updateStatus: (id: string, status: string) => void // nova função para atualizar o status
 }
 
 export const clienteStore = create<ClienteStore>((set) => ({
     // States
-    clientes: null,
+    clientes: [],
     isLoading: false,
 
     // Functions
-
     load: async () => {
         set({ isLoading: true })
-
         try {
             const response = await api('/client')
             const data = await response.json()
-
-            set({isLoading: false, clientes:data.clientes})
+            set({ isLoading: false, clientes: data.clientes })
         } catch (error) {
-            console.error('Failed to fetch clients:', error)
-            set({ isLoading: false }) 
+            console.error('Failed to fetch users:', error)
         }
-
     },
 
-    create: async (data) => {
+    updateStatus: async (id, status) => {
         try {
-            await api('/client', {
-                method: "POST",
+            await api(`/client/${id}/status`, {
+                method: "PUT",
                 headers: {
-                    "Content-Type": "application/json", // Define o tipo de conteúdo como JSON
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data)
-
+                body: JSON.stringify({ status })
             })
-
+            // Atualiza localmente o estado após a alteração
+            set((state) => ({
+                clientes: state.clientes.map((cliente) =>
+                    cliente.id === id ? { ...cliente, status } : cliente
+                )
+            }))
         } catch (err) {
             console.log(err)
         }
-    },
+    }
 }));
