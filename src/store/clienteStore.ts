@@ -4,9 +4,11 @@ import { create } from "zustand";
 
 type ClienteStore = {
     clientes: Cliente[],
+    create: (data: { nome: string, prioridade: string }) => Promise<void>,
     isLoading: boolean,
     load: () => Promise<void>,
-    updateStatus: (id: string, status: string) => void // nova função para atualizar o status
+    updateStatus: (id: string, status: string) => void 
+    findById: (id: string) => Promise<Cliente>
 }
 
 export const clienteStore = create<ClienteStore>((set) => ({
@@ -26,6 +28,25 @@ export const clienteStore = create<ClienteStore>((set) => ({
         }
     },
 
+    create: async ({ nome, prioridade }) => {
+        try {
+            const response = await api("/client", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ nome, prioridade })
+
+            })
+            const data = await response.json()
+            return data
+
+
+        } catch (err) {
+            console.log(err)
+        }
+    },
+
     updateStatus: async (id, status) => {
         try {
             await api(`/client/${id}/status`, {
@@ -42,6 +63,16 @@ export const clienteStore = create<ClienteStore>((set) => ({
                 )
             }))
         } catch (err) {
+            console.log(err)
+        }
+    },
+
+    findById: async (id) => {
+        try{
+            const response = await api(`/client/${id}`)
+            const data = await response.json()
+            return data
+        }catch(err){
             console.log(err)
         }
     }
