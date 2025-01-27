@@ -3,26 +3,43 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import Logo from "../../../../public/assets/imagens/logo.jpeg"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Circle } from "lucide-react"
+import { ref, set } from "firebase/database"
+import { database } from "@/lib/firebaseConfig"
 
 export default function Consultorio() {
     const { load, clientes, updateStatus } = clienteStore()
+    const [name, setName] = useState("");
 
     useEffect(() => {
         load()
     }, [load])
 
-    console.log(clientes)
 
-    const handleChamarPaciente = (id: string) => {
-        updateStatus(id, "chamado") // Atualiza o status do paciente para "chamado"
-    }
+    const handleChamarPaciente = async (id: string) => {
+        
+        const cliente = clientes.find((cliente) => cliente.id === id);
+        
+        if (cliente) {
+            try {
+                updateStatus(cliente.id, "chamado");
+                
+                const nameRef = ref(database, "chamada");
+                await set(nameRef, { name: cliente.nome } );
+                console.log("Paciente chamado:", cliente);
+    
+            } catch (error) {
+                console.error("Erro ao chamar paciente:", error);
+            }
+        }
+    };
+    
 
     return (
         <section >
             <header className="flex flex-row items-center gap-6 bg-blue-500 py-5 px-10 w-full ">
-                <Image width={150} height={150} src={Logo} alt="Logo" />
+                <Image width={150} height={150} src={Logo} alt="Logo" priority/>
                 <h1 className="text-white "><span className="text-xl font-semibold">UPA</span> - Sistema de Atendimento</h1>
             </header>
 

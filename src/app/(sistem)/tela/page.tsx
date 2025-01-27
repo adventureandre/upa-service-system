@@ -3,22 +3,38 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import Logo from "../../../../public/assets/imagens/logo.jpeg"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Circle } from "lucide-react"
+import { onValue, ref } from "firebase/database"
+import { database } from "@/lib/firebaseConfig"
 
 export default function Tela() {
     const { load, clientes } = clienteStore()
+    const [name, setName] = useState()
 
 
     useEffect(() => {
         load()
-    }, [load])  // Garantir que o 'load' seja chamado uma vez na montagem
+    }, [load])
 
+    useEffect(() => {
+        const nameRef = ref(database, "chamada");
+        const unsubscribe = onValue(nameRef, (snapshot) => {
+            const data = snapshot.val();
+            setName(data);
+        });
+    
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+    console.log(name)
 
     return (
         <section >
             <header className="flex flex-row items-center gap-6 bg-blue-500 py-5 px-10 w-full ">
-                <Image width={150} height={150} src={Logo} alt="Logo" />
+                <Image width={150} height={150} src={Logo} alt="Logo" priority/>
                 <h1 className="text-white "><span className="text-xl font-semibold">UPA</span> - Sistema de Atendimento</h1>
             </header>
 
@@ -26,7 +42,7 @@ export default function Tela() {
                 {clientes?.map((cliente) => (
                     cliente.status === "chamado" ? (
                         <div className="w-full flex flex-wrap justify-center" key={cliente.id} >
-                            <h1  className="text-4xl font-semibold text-red-600 flex gap-6">
+                            <h1 className="text-4xl font-semibold text-red-600 flex gap-6">
                                 {cliente.nome}
                                 <Circle size={32} color={cliente.prioridade === "urgente" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
                             </h1>
@@ -53,22 +69,22 @@ export default function Tela() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                         {clientes?.map((cliente) => (
-                        <TableRow key={cliente.id}>
-                            <TableCell className="font-medium">
-                                <Circle size={32} color={cliente.prioridade === "urgente" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
-                            </TableCell>
-                            <TableCell className="flex-1">{cliente.nome}</TableCell>
-                            <TableCell>
-                                <div>UPA - ATENDIMENTO MÉDICO</div>
-                                <div>Milena Camila Nogueira Souza</div>
-                                <div>CONSULTÓRIO MÉDICO 01</div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                                15:20 BRT
-                            </TableCell>
-                        </TableRow>
-                    ))}
+                        {clientes?.map((cliente) => (
+                            <TableRow key={cliente.id}>
+                                <TableCell className="font-medium">
+                                    <Circle size={32} color={cliente.prioridade === "urgente" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
+                                </TableCell>
+                                <TableCell className="flex-1">{cliente.nome}</TableCell>
+                                <TableCell>
+                                    <div>UPA - ATENDIMENTO MÉDICO</div>
+                                    <div>Milena Camila Nogueira Souza</div>
+                                    <div>CONSULTÓRIO MÉDICO 01</div>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    15:20 BRT
+                                </TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </div>
