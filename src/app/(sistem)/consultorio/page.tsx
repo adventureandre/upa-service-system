@@ -1,6 +1,6 @@
 "use client"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import Logo from "../../../../public/assets/imagens/logo.jpeg"
+import Logo from "../../../../public/assets/imagens/logo.png"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
 import { useEffect } from "react"
@@ -25,7 +25,7 @@ export default function Consultorio() {
                 
                 // Salva nome do paciente na base de dados Firebase
                 const nameRef = ref(database, "chamada");
-                await set(nameRef, { name: cliente.nome });
+                await set(nameRef, { cliente });
             } catch (error) {
                 console.error("Erro ao chamar paciente:", error);
             }

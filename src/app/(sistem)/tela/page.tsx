@@ -1,6 +1,6 @@
 "use client"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import Logo from "../../../../public/assets/imagens/logo.jpeg"
+import Logo from "../../../../public/assets/imagens/logo.png"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
 import { useEffect, useState } from "react"
@@ -8,13 +8,14 @@ import { Circle } from "lucide-react"
 import { onValue, ref } from "firebase/database"
 import { database } from "@/lib/firebaseConfig"
 import { api } from "@/lib/api"
+import { Cliente } from "@prisma/client"
 
 export default function Tela() {
     const { load, clientes } = clienteStore()
-    const [name, setName] = useState<string | null>(null)
+    const [clienteChamando, setClienteChamando] = useState<Cliente | null>(null)
 
     const synthesize = async (text: string) => {
-        if (name) {
+        if (clienteChamando) {
             try {
                 const response = await api('/synthesize', {
                     method: 'POST',
@@ -52,9 +53,9 @@ export default function Tela() {
         const unsubscribe = onValue(nameRef, (snapshot) => {
             const data = snapshot.val();
             if (data) { // Verifica se `data` não é null
-                setName(data.name);
+                setClienteChamando(data.cliente);
             } else {
-                setName(null); // Define `name` como null se `data` for null
+                setClienteChamando(null); // Define `name` como null se `data` for null
             }
         });
 
@@ -64,10 +65,10 @@ export default function Tela() {
     }, []);
 
     useEffect(() => {
-        if (name) {
-            synthesize("Paciente " + name + " favor comparecer ao consultório médico 01.");
+        if (clienteChamando?.nome) {
+            synthesize("Paciente " + clienteChamando.nome + " favor comparecer ao consultório médico 01.");
         }
-    }, [name])
+    }, [clienteChamando])
 
     return (
         <section>
@@ -77,19 +78,19 @@ export default function Tela() {
             </header>
 
             <article className="flex justify-center flex-wrap gap-3 mt-5 mx-5 ">
-                {name ? (
-                    clientes?.map((cliente) => (
-                        cliente.status === "chamado" ? (
-                            <div className="w-full flex flex-wrap justify-center" key={cliente.id}>
-                                <h1 className="text-4xl font-semibold text-red-600 flex gap-6">
-                                    {cliente.nome}
-                                    <Circle size={32} color={cliente.prioridade === "urgente" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
-                                </h1>
-                                <p className="w-full text-center text-2xl">UPA - Atendimento Médico</p>
-                                <p className="w-full font-bold"><span className="bg text-blue-500 mr-1">Proficional: </span> Milena Camila Nogueira Souza</p>
-                            </div>
-                        ) : null
-                    ))
+                {clienteChamando ? (
+
+
+                    <div className="w-full flex flex-wrap justify-center" key={clienteChamando.id}>
+                        <h1 className="text-4xl font-semibold text-red-600 flex gap-6">
+                            {clienteChamando.nome}
+                            <Circle size={32} color={clienteChamando.prioridade === "urgente" ? "#17ac2b" : "#f50000"} strokeWidth={3} />
+                        </h1>
+                        <p className="w-full text-center text-2xl">UPA - Atendimento Médico</p>
+                        <p className="w-full font-bold"><span className="bg text-blue-500 mr-1">Proficional: </span> Milena Camila Nogueira Souza</p>
+                    </div>
+
+
                 ) : (
                     <p className="text-2xl text-gray-500">Nenhum paciente chamado no momento.</p>
                 )}
