@@ -6,6 +6,7 @@ import { getDatabase } from "firebase/database";
 const firebaseConfig = {
   apiKey: "AIzaSyAl8qo67cFeIO_vFGJMxmTHEjAm2y5BzZ4",
   authDomain: "upa-sistem-01.firebaseapp.com",
+  databaseURL: "https://upa-sistem-01-default-rtdb.firebaseio.com/",
   projectId: "upa-sistem-01",
   storageBucket: "upa-sistem-01.firebasestorage.app",
   messagingSenderId: "8332712754",
