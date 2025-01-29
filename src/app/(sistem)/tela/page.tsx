@@ -3,7 +3,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import Logo from "../../../../public/assets/imagens/logo.png"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Circle } from "lucide-react"
 import { onValue, ref } from "firebase/database"
 import { database } from "@/lib/firebaseConfig"
@@ -14,7 +14,7 @@ export default function Tela() {
     const { load, clientes } = clienteStore()
     const [clienteChamando, setClienteChamando] = useState<Cliente | null>(null)
 
-    const synthesize = async (text: string) => {
+    const synthesize = useCallback( async (text: string) => {
         if (clienteChamando) {
             try {
                 const response = await api('/synthesize', {
@@ -42,20 +42,21 @@ export default function Tela() {
                 console.error('Erro ao sintetizar:', error);
             }
         }
-    }
+    },[clienteChamando])
 
     useEffect(() => {
         load()
     }, [load])
 
+
     useEffect(() => {
         const nameRef = ref(database, "chamada");
         const unsubscribe = onValue(nameRef, (snapshot) => {
             const data = snapshot.val();
-            if (data) { // Verifica se `data` não é null
+            if (data) {
                 setClienteChamando(data.cliente);
             } else {
-                setClienteChamando(null); // Define `name` como null se `data` for null
+                setClienteChamando(null); 
             }
         });
 
@@ -68,7 +69,7 @@ export default function Tela() {
         if (clienteChamando?.nome) {
             synthesize("Paciente " + clienteChamando.nome + " favor comparecer ao consultório médico 01.");
         }
-    }, [clienteChamando])
+    }, [clienteChamando,synthesize])
 
     return (
         <section>
