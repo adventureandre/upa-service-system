@@ -3,26 +3,42 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import Logo from "../../../../public/assets/imagens/logo.png"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Circle } from "lucide-react"
-import { ref, set } from "firebase/database"
+import { onValue, ref, set } from "firebase/database"
 import { database } from "@/lib/firebaseConfig"
+import { Cliente } from "@prisma/client"
 
 export default function Consultorio() {
     const { load, clientes, updateStatus } = clienteStore()
+    const [clienteChamando, setClienteChamando] = useState<Cliente | null>(null)
 
     useEffect(() => {
         load()
     }, [load])
 
+    useEffect(() => {
+        const nameRef = ref(database, "chamada");
+        const unsubscribe = onValue(nameRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                setClienteChamando(data.cliente);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
     const handleChamarPaciente = async (id: string) => {
         const cliente = clientes.find((cliente) => cliente.id === id);
-        
+
         if (cliente) {
             try {
                 // Atualiza status do paciente para chamado
                 updateStatus(cliente.id, "chamado");
-                
+
                 // Salva nome do paciente na base de dados Firebase
                 const nameRef = ref(database, "chamada");
                 await set(nameRef, { cliente });
@@ -35,14 +51,18 @@ export default function Consultorio() {
     return (
         <section>
             <header className="flex flex-row items-center gap-6 bg-blue-500 py-5 px-10 w-full ">
-                <Image width={150} height={150} src={Logo} alt="Logo" priority/>
+                <Image width={150} height={150} src={Logo} alt="Logo" priority />
                 <h1 className="text-white "><span className="text-xl font-semibold">UPA</span> - Sistema de Atendimento</h1>
             </header>
 
             <article className="flex justify-center flex-wrap gap-3 mt-5 mx-5 ">
-                <h1 className="text-4xl font-semibold text-red-600">Ana Beatriz Perreia de Souza</h1>
-                <p className="w-full text-center text-2xl">UPA - Atendimento Médico</p>
-                <p className="w-full font-bold"><span className="bg text-blue-500 mr-1">Proficional: </span> Milena Camila Nogueira Souza</p>
+                {clienteChamando && (
+                    <>
+                        <h1 className="text-4xl font-semibold text-red-600">{clienteChamando.nome}</h1>
+                        <p className="w-full text-center text-2xl">UPA - Atendimento Médico</p>
+                        <p className="w-full font-bold"><span className="bg text-blue-500 mr-1">Proficional: </span> Milena Camila Nogueira Souza</p>
+                    </>
+                )}
             </article>
 
             <div className="mx-6">

@@ -3,46 +3,16 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import Logo from "../../../../public/assets/imagens/logo.png"
 import { clienteStore } from "@/store/clienteStore"
 import Image from "next/image"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Circle } from "lucide-react"
 import { onValue, ref } from "firebase/database"
 import { database } from "@/lib/firebaseConfig"
-import { api } from "@/lib/api"
+
 import { Cliente } from "@prisma/client"
 
 export default function Tela() {
-    const { load, clientes } = clienteStore()
+    const { load, clientes, synthesize } = clienteStore()
     const [clienteChamando, setClienteChamando] = useState<Cliente | null>(null)
-
-    const synthesize = useCallback( async (text: string) => {
-        if (clienteChamando) {
-            try {
-                const response = await api('/synthesize', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        text: text
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro na requisição');
-                }
-
-                // Cria uma URL temporária para o áudio retornado
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-
-                // Reproduz o áudio
-                const audio = new Audio(audioUrl);
-                audio.play().catch(error => console.error('Erro ao reproduzir áudio:', error));
-            } catch (error) {
-                console.error('Erro ao sintetizar:', error);
-            }
-        }
-    },[clienteChamando])
 
     useEffect(() => {
         load()
@@ -69,7 +39,7 @@ export default function Tela() {
         if (clienteChamando?.nome) {
             synthesize("Paciente " + clienteChamando.nome + " favor comparecer ao consultório médico 01.");
         }
-    }, [clienteChamando,synthesize])
+    }, [clienteChamando, synthesize])
 
     return (
         <section>

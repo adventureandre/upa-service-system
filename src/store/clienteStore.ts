@@ -7,8 +7,9 @@ type ClienteStore = {
     create: (data: { nome: string, prioridade: string }) => Promise<void>,
     isLoading: boolean,
     load: () => Promise<void>,
-    updateStatus: (id: string, status: string) => void 
+    updateStatus: (id: string, status: string) => void
     findById: (id: string) => Promise<Cliente>
+    synthesize: (text: string) => Promise<void>
 }
 
 export const clienteStore = create<ClienteStore>((set) => ({
@@ -68,12 +69,49 @@ export const clienteStore = create<ClienteStore>((set) => ({
     },
 
     findById: async (id) => {
-        try{
+        try {
             const response = await api(`/client/${id}`)
             const data = await response.json()
             return data
-        }catch(err){
+        } catch (err) {
             console.log(err)
+        }
+    },
+
+    synthesize: async (text: string) => {
+        try {
+            const response = await api('/synthesize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text })
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro na requisição');
+            }
+
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            // // Adiciona um botão temporário para interação do usuário
+            // const button = document.createElement('button');
+            // button.style.display = 'none';
+            // document.body.appendChild(button);
+            // button.click();
+           // document.body.removeChild(button);
+
+            await audio.play().catch((error) => {
+                console.error('Erro ao reproduzir áudio:', error);
+            });
+
+            // Limpa a URL do objeto após a reprodução
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+            };
+        } catch (error) {
+            console.error('Erro ao sintetizar:', error);
         }
     }
 }));
