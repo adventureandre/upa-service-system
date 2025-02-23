@@ -95,12 +95,6 @@ export const clienteStore = create<ClienteStore>((set) => ({
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
-            // // Adiciona um botão temporário para interação do usuário
-            // const button = document.createElement('button');
-            // button.style.display = 'none';
-            // document.body.appendChild(button);
-            // button.click();
-           // document.body.removeChild(button);
 
             await audio.play().catch((error) => {
                 console.error('Erro ao reproduzir áudio:', error);
